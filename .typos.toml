@@ -1,0 +1,2 @@
+[files]
+extend-exclude = [".gitignore", "dev.requirements.txt", "prod.requirements.txt"]
