@@ -1,0 +1,41 @@
+services:
+  fastapi:
+    container_name: <project_name>-api
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - ./app:/app
+      - .env:/app/.env
+    ports:
+      - "8000:80"
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:17.1
+    container_name: <project_name>-db
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7.4.1
+    container_name: <project_name>-cache
+    env_file:
+      - .env
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
