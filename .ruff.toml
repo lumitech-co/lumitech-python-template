@@ -1,0 +1,142 @@
+extend-exclude = [
+    ".idea",
+]
+
+line-length = 120
+
+target-version = "py312"
+
+[lint]
+preview = true
+select = [
+    # Pyflakes
+    "F",
+    # pycodestyle (E, W)
+    "E",
+    "W",
+    # mccabe
+    "C90",
+    # isort
+    "I",
+    # pep8-naming
+    "N",
+    # pydocstyle
+    "D",
+    # pyupgrade
+    "UP",
+    # flake8-async
+    "ASYNC",
+    # flake8-bandit
+    "S",
+    # flake8-boolean-trap
+    "FBT",
+    # flake8-bugbear
+    "B",
+    # flake8-builtins
+    "A",
+    # flake8-commas
+    "COM",
+    # flake8-copyright
+    "CPY",
+    # flake8-comprehensions
+    "C4",
+    # flake8-datetimez
+    "DTZ",
+    # flake8-debugger
+    "T10",
+    # flake8-executable
+    "EXE",
+    # flake8-future-annotations
+    "FA",
+    # flake8-implicit-str-concat
+    "ISC",
+    # flake8-implicit-str-concat
+    "ICN",
+    # flake8-pie
+    "PIE",
+    # flake8-print
+    "T20",
+    # flake8-pytest-style
+    "PT",
+    # flake8-quotes
+    "Q",
+    # flake8-raise
+    "RSE",
+    # flake8-return
+    "RET",
+    # flake8-slots
+    "SLOT",
+    # flake8-simplify
+    "SIM",
+    # flake8-unused-arguments
+    "ARG",
+    # flake8-use-pathlib
+    "PTH",
+    # flake8-todos
+    "TD",
+    # pygrep-hooks
+    "PGH",
+    # Pylint
+    "PL",
+    # tryceratops
+    "TRY",
+    # flynt
+    "FLY",
+    # Perflint
+    "PERF",
+    # refurb
+    "FURB",
+    # flake8-logging
+    "LOG",
+    # Ruff-specific rules
+    "RUF",
+]
+ignore = [
+     # Missing docstring
+    "D1",
+    # One-line docstring should fit on one line
+    "D200",
+    # One blank line required before class docstring
+    "D203",
+    # One blank line required between summary line and description
+    "D205",
+    # Multi-line docstring summary should start at the second line
+    "D213",
+    # First line should end with a period
+    "D400",
+    # First line should end with a period, question mark, or exclamation point
+    "D415",
+    # Missing-trailing-comma
+    "COM812",
+    # Missing copyright notice at top of file
+    "CPY001",
+    # Missing author in TODO
+    "TD002",
+    # Missing issue link on the line following this TODO
+    "TD003",
+    # Avoid specifying long messages outside the exception class
+    "TRY003",
+    # Too-many-nested-blocks
+    "PLR1702",
+    # Builtin-module-shadowing
+    "A005",
+    # suspicious-non-cryptographic-random-usage
+    "S311",
+    # single-line-implicit-string-concatenation
+    "ISC001",
+]
+
+[lint.flake8-builtins]
+builtins-ignorelist = ["id"]
+
+[lint.pylint]
+max-args = 7
+
+[lint.isort]
+combine-as-imports = true
+
+[format]
+preview = true
+
+[lint.extend-per-file-ignores]
+"__init__.py" = ["E402", "F401"]
