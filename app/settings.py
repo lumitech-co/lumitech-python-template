@@ -9,5 +9,10 @@ class Settings(BaseSettings):
     redis_port: int
     redis_password: str
 
+    # JWT
+    jwt_secret_key: str
+    jwt_expire_time_seconds: int
+    jwt_algorithm: str
+
 
 settings = Settings()
