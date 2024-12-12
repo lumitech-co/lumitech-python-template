@@ -1,6 +1,6 @@
 services:
   fastapi:
-    container_name: test-api
+    container_name: <project_name>-api
     build:
       context: .
       dockerfile: dev.Dockerfile
@@ -17,7 +17,7 @@ services:
 
   postgres:
     image: postgres:17.1
-    container_name: test-db
+    container_name: <project_name>-db
     env_file:
       - .env
     volumes:
@@ -27,7 +27,7 @@ services:
 
   redis:
     image: redis:7.4.1
-    container_name: test-cache
+    container_name: <project_name>-cache
     env_file:
       - .env
     volumes:
