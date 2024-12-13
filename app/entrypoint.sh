@@ -1,5 +1,4 @@
 #! /usr/bin/env bash
-
 echo "Waiting for the database initialization... "
 sleep 5;
 
