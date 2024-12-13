@@ -20,10 +20,11 @@ Environment variables are listed in [_.env.example_](.env.example) file.
 
 ## Development Environment
 
+- Install uv if needed via `curl -LsSf https://astral.sh/uv/install.sh | sh`.
 - Navigate to the project directory via `cd <project_name>`.
-- Create a virtual environment via `python -m venv .venv`.
+- Create a virtual environment via `uv venv`.
 - Activate the virtual environment via `source .venv/bin/activate`.
-- Install the project's dependencies via `pip install -r dev.requirements.txt`.
+- Install the project's dependencies via `uv sync`.
 - Initialize pre-commit environment and install pre-commit hooks via `pre-commit install`.
 - Copy [_.env.example_](.env.example) to _.env_ file via `cp .env.example .env`.
 - Fill environment variables listed in _.env_ with relevant values.
