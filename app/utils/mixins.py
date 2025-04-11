@@ -45,3 +45,10 @@ class CreatedAtComputeMixin:
     @property
     def created_at(self) -> datetime:
         return datetime.now(UTC).replace(tzinfo=None)
+
+
+class UpdatedAtComputeMixin:
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def updated_at(self) -> datetime:
+        return datetime.now(UTC).replace(tzinfo=None)
