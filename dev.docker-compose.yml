@@ -1,23 +1,25 @@
 services:
   fastapi:
-    container_name: <project_name>-api
+    container_name: template-api
     build:
       context: .
       dockerfile: dev.Dockerfile
+    entrypoint: /opt/pysetup/app/entrypoint.sh
     env_file:
       - .env
     volumes:
-      - ./app:/app
-      - .env:/app/.env
+      - ./app:/opt/pysetup/app
+      - .env:/opt/pysetup/app/.env
     ports:
       - "8000:80"
     depends_on:
       - postgres
       - redis
+    stop_grace_period: 3s
 
   postgres:
-    image: postgres:17.1
-    container_name: <project_name>-db
+    image: postgres:17.4
+    container_name: template-db
     env_file:
       - .env
     volumes:
@@ -26,8 +28,8 @@ services:
       - "5432:5432"
 
   redis:
-    image: redis:7.4.1
-    container_name: <project_name>-cache
+    image: redis:7.4.2
+    container_name: template-cache
     env_file:
       - .env
     volumes:
