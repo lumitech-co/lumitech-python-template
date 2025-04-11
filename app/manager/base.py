@@ -7,11 +7,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.exceptions.http import HTTPBadRequestException, HTTPNotFoundException
 from app.repository.base import BaseRepository, DBModelType, SchemaCreateType, SchemaUpdateType
 from app.utils.constants import DEFAULT_DESC, DEFAULT_ORDER_BY
+from app.utils.misc import camel_to_snake
 
 RepositoryType = TypeVar("RepositoryType", bound=BaseRepository)  # type: ignore[type-arg]
 
 
-class BaseManager(Generic[DBModelType, RepositoryType, SchemaCreateType, SchemaUpdateType]):
+class BaseManager(Generic[DBModelType, RepositoryType, SchemaCreateType, SchemaUpdateType]):  # noqa: UP046
     def __init__(self, db_model: type[DBModelType], repository: type[RepositoryType]) -> None:
         self.db_model = db_model
         self.repository = repository(self.db_model)
@@ -20,23 +21,24 @@ class BaseManager(Generic[DBModelType, RepositoryType, SchemaCreateType, SchemaU
         self,
         *,
         filters: list[Any] | None = None,
+        options: list[Any] | None = None,
         order_by: str = DEFAULT_ORDER_BY,
         desc: bool = DEFAULT_DESC,
         session: AsyncSession,
         **kwargs: Any,
     ) -> DBModelType:
         try:
-            order_by = getattr(self.db_model, order_by)
-        except AttributeError:
-            raise HTTPBadRequestException from None
+            order_by = getattr(self.db_model, camel_to_snake(order_by))
+        except AttributeError as exc:
+            raise HTTPBadRequestException(detail="Invalid value for `orderBy`") from exc
 
         if kwargs:
             for key in kwargs:
                 if not hasattr(self.db_model, key):
-                    raise HTTPBadRequestException
+                    raise HTTPBadRequestException(detail="Invalid field provided")
 
         db_obj = await self.repository.fetch_one(
-            filters=filters, order_by=order_by, desc=desc, session=session, **kwargs
+            filters=filters, options=options, order_by=order_by, desc=desc, session=session, **kwargs
         )
 
         if not db_obj:
@@ -48,25 +50,24 @@ class BaseManager(Generic[DBModelType, RepositoryType, SchemaCreateType, SchemaU
         self,
         *,
         filters: list[Any] | None = None,
+        options: list[Any] | None = None,
         order_by: str = DEFAULT_ORDER_BY,
         desc: bool = DEFAULT_DESC,
-        offset: int | None = None,
-        limit: int | None = None,
         session: AsyncSession,
         **kwargs: Any,
     ) -> Sequence[DBModelType] | None:
         try:
-            order_by = getattr(self.db_model, order_by)
-        except AttributeError:
-            raise HTTPBadRequestException from None
+            order_by = getattr(self.db_model, camel_to_snake(order_by))
+        except AttributeError as exc:
+            raise HTTPBadRequestException(detail="Invalid value for `orderBy`") from exc
 
         if kwargs:
             for key in kwargs:
                 if not hasattr(self.db_model, key):
-                    raise HTTPBadRequestException
+                    raise HTTPBadRequestException(detail="Invalid field provided")
 
         return await self.repository.fetch(
-            filters=filters, order_by=order_by, desc=desc, offset=offset, limit=limit, session=session, **kwargs
+            filters=filters, options=options, order_by=order_by, desc=desc, session=session, **kwargs
         )
 
     async def create(self, create_obj: SchemaCreateType, session: AsyncSession) -> DBModelType:
