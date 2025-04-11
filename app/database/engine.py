@@ -21,17 +21,17 @@ class DatabaseSessionManager:
         self._engine: AsyncEngine | None = create_async_engine(
             db_url, pool_size=30, pool_pre_ping=True, pool_recycle=1800, max_overflow=15, **(engine_kwargs or {})
         )
-        self._sessionmaker: async_sessionmaker[AsyncSession] | None = async_sessionmaker(
+        self.session_maker: async_sessionmaker[AsyncSession] | None = async_sessionmaker(
             autocommit=False,
             expire_on_commit=False,
             bind=self._engine,
         )
 
     async def get_session(self) -> AsyncIterator[AsyncSession]:
-        if self._sessionmaker is None:
+        if self.session_maker is None:
             raise DatabaseInitializationError
 
-        session = self._sessionmaker()
+        session = self.session_maker()
         try:
             yield session
         except Exception:
@@ -46,7 +46,7 @@ class DatabaseSessionManager:
         await self._engine.dispose()
 
         self._engine = None
-        self._sessionmaker = None
+        self.session_maker = None
 
 
 session_manager: DatabaseSessionManager = DatabaseSessionManager(settings.db_url, {"echo": settings.echo_sql})
