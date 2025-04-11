@@ -4,10 +4,14 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
+from fastapi_pagination import add_pagination
+from starlette.middleware.sessions import SessionMiddleware
 
 from app.database.engine import session_manager
+from app.exceptions.handlers import internal_error_exception_handler, validation_error_exception_handler
 from app.routes.misc import router as router_misc
 from app.routes.user import router as router_user
 from app.settings import settings
@@ -29,7 +33,40 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:  # noqa: ARG001
     await session_manager.close_connection()
 
 
-app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url=None)
+app = FastAPI(
+    lifespan=lifespan,
+    docs_url=None,
+    redoc_url=None,
+    responses={
+        422: {
+            "description": "Unprocessable Entity Error",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Validation Error",
+                        "errors": [
+                            {
+                                "type": "string",
+                                "loc": ["string"],
+                                "msg": "string",
+                            }
+                        ],
+                        "body": {},
+                    }
+                }
+            },
+        },
+        500: {
+            "description": "Internal Server Error",
+            "content": {"application/json": {"example": {"detail": "Internal Server Error"}}},
+        },
+    },
+)
+
+add_pagination(app)
+
+app.add_exception_handler(RequestValidationError, validation_error_exception_handler)  # type: ignore[arg-type]
+app.add_exception_handler(Exception, internal_error_exception_handler)
 
 for router in ROUTERS:
     app.include_router(router)
@@ -61,3 +98,4 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(SessionMiddleware, secret_key=settings.secret_key)
