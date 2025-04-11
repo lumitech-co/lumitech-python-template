@@ -5,6 +5,7 @@ from app.utils.mixins import (
     EmailLowerCaseMixin,
     PasswordComplexityMixin,
     PasswordHashMixin,
+    UpdatedAtComputeMixin,
 )
 
 
@@ -12,7 +13,14 @@ class UserBase(BaseModel, EmailLowerCaseMixin):
     email: str
 
 
-class UserCreate(UserBase, PasswordComplexityMixin, PasswordHashMixin, EmailLowerCaseMixin, CreatedAtComputeMixin):
+class UserCreate(
+    UserBase,
+    PasswordComplexityMixin,
+    PasswordHashMixin,
+    EmailLowerCaseMixin,
+    CreatedAtComputeMixin,
+    UpdatedAtComputeMixin,
+):
     email: EmailStr = Field(max_length=100)
     password: str = Field(max_length=50)
 
@@ -24,5 +32,5 @@ class UserRead(UserBase):
     id: int
 
 
-class UserUpdate(BaseModel):
+class UserUpdate(BaseModel, UpdatedAtComputeMixin):
     email: EmailStr | None = Field(None, max_length=100)
