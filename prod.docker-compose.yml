@@ -4,6 +4,7 @@ services:
     build:
       context: .
       dockerfile: prod.Dockerfile
+    entrypoint: /opt/pysetup/app/entrypoint.sh
     env_file:
       - .env
     labels:
@@ -11,7 +12,7 @@ services:
       - traefik.http.services.app.loadbalancer.server.port=80
       - traefik.http.routers.app-http.entrypoints=http
       - traefik.http.routers.app-http.rule=Host(`${BACKEND_HOST_NAME}`)
-      - traefik.docker.network=goslinger-network
+      - traefik.docker.network=<project_name>-network
       - traefik.http.routers.app-https.entrypoints=https
       - traefik.http.routers.app-https.rule=Host(`${BACKEND_HOST_NAME}`)
       - traefik.http.routers.app-https.tls=true
@@ -20,8 +21,8 @@ services:
       - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
       - traefik.http.routers.app-http.middlewares=https-redirect
     volumes:
-      - ./app:/app
-      - .env:/app/.env
+      - ./app:/opt/pysetup/app
+      - .env:/opt/pysetup/app/.env
     expose:
       - 80
     depends_on:
@@ -29,9 +30,10 @@ services:
       - redis
     networks:
       - <project_name>-network
+    stop_grace_period: 3s
 
   postgres:
-    image: postgres:17.1
+    image: postgres:17.4
     container_name: <project_name>-db
     env_file:
       - .env
@@ -43,7 +45,7 @@ services:
       - <project_name>-network
 
   traefik:
-    image: traefik:v3.2.1
+    image: traefik:v3.3.5
     container_name: <project_name>-proxy
     command:
       - --providers.docker
@@ -66,7 +68,7 @@ services:
       - <project_name>-network
 
   redis:
-    image: redis:7.4.1
+    image: redis:7.4.2
     container_name: <project_name>-cache
     env_file:
       - .env

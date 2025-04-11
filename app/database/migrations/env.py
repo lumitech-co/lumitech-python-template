@@ -40,6 +40,10 @@ def include_name_filter(
 ) -> bool:
     if type_ == "schema":
         return name == target_metadata.schema
+
+    if type_ == "table":
+        return name in target_metadata.tables
+
     return True
 
 

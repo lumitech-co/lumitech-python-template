@@ -1,21 +1,37 @@
-FROM python:3.12.8-slim-bookworm
+FROM python:3.13.2-slim-bookworm AS base
 
-# hadolint ignore=DL3008,DL3009
-RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+ARG NONROOT_USER=nonroot
+ARG UV_PATH=./.local/bin/uv
+ARG PYSETUP_PATH=/opt/pysetup
 
-ADD https://astral.sh/uv/0.5.8/install.sh /uv-installer.sh
+ENV PATH="${PYSETUP_PATH}/.venv/bin:${PATH}"
 
-RUN sh /uv-installer.sh && rm /uv-installer.sh
+RUN groupadd --gid ${GROUP_ID} ${NONROOT_USER} && \
+    useradd --uid ${USER_ID} --gid ${GROUP_ID} --create-home --home-dir ${PYSETUP_PATH} ${NONROOT_USER} && \
+    mkdir -p ${PYSETUP_PATH}/app && \
+    chown -R ${NONROOT_USER}:${NONROOT_USER} ${PYSETUP_PATH}
 
-ENV PATH="/root/.local/bin/:$PATH"
+# hadolint ignore=DL3008
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml uv.lock /
+USER ${NONROOT_USER}
+WORKDIR ${PYSETUP_PATH}
 
-RUN uv sync --frozen
-ENV PATH="/.venv/bin:$PATH"
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
-WORKDIR /app
+COPY --chown=${NONROOT_USER}:${NONROOT_USER} pyproject.toml uv.lock ./
 
-COPY ./app /app
+RUN ${UV_PATH} venv && \
+    ${UV_PATH} sync --frozen
 
-ENTRYPOINT ["/app/entrypoint.sh"]
+FROM base AS runtime
+
+COPY --from=base ${PYSETUP_PATH}/.venv ${PYSETUP_PATH}/.venv
+COPY --chown=${NONROOT_USER}:${NONROOT_USER} ./app ${PYSETUP_PATH}/app
+
+WORKDIR ${PYSETUP_PATH}/app
