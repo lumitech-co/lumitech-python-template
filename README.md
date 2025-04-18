@@ -173,11 +173,11 @@ The project is organized into several modules to promote a clean architecture an
 │       ├── tokens.py                # JWT creation/validation
 │       └── types.py                 # Shared type definitions
 ├── dev.Dockerfile                   # Dockerfile for development
-├── dev.docker-compose.yml          # Docker Compose config for dev
-├── prod.Dockerfile                 # Dockerfile for production
-├── prod.docker-compose.yml        # Docker Compose config for prod
-├── pyproject.toml                  # Poetry project configuration
-└── uv.lock                         # Poetry lockfile
+├── dev.docker-compose.yml           # Docker Compose config for dev
+├── prod.Dockerfile                  # Dockerfile for production
+├── prod.docker-compose.yml          # Docker Compose config for prod
+├── pyproject.toml                   # UV project configuration
+└── uv.lock                          # UV lockfile
 ```
 
 ## 👥 Contribution Guidelines
