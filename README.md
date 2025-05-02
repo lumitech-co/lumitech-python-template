@@ -170,19 +170,19 @@ This directory handles data persistence and interaction with the database.
 - `models.py`: defines the SQLAlchemy ORM models that represent database tables;
 - `migrations/`: houses Alembic configuration and migration scripts to manage database schema changes.
 
-`app/manager`:
-
-Encapsulates the business logic layer using the Manager Pattern.
-
-- `base.py`: provides a base manager with common logic used across different managers;
-- `user.py`: contains user-specific business logic, orchestrating operations across repositories and utilities.
-
 `app/repository`:
 
 Implements the data access layer following the Repository Pattern.
 
 - `base.py`: defines generic CRUD operations to be extended by specific repositories;
 - `user.py`: implements user-specific data queries and operations.
+
+`app/manager`:
+
+Encapsulates the business logic layer using the Manager Pattern.
+
+- `base.py`: provides a base manager with common logic used across different managers;
+- `user.py`: contains user-specific business logic, orchestrating operations across repositories and utilities.
 
 `app/routes`:
 
