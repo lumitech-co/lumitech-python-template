@@ -5,24 +5,28 @@ description = "Python Template"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "alembic>=1.15.2",
+    "alembic>=1.16.4",
     "asyncpg>=0.30.0",
     "bcrypt>=4.3.0",
-    "fastapi-mail>=1.4.2",
-    "fastapi-pagination>=0.12.34",
-    "fastapi[standard]>=0.115.12",
+    "fastapi-pagination>=0.13.3",
+    "fastapi[standard]>=0.116.1",
     "itsdangerous>=2.2.0",
-    "orjson>=3.10.16",
-    "pydantic-settings>=2.8.1",
+    "orjson>=3.10.18",
+    "pydantic-settings>=2.10.1",
     "pyjwt>=2.10.1",
-    "redis>=5.2.1",
-    "sqlakeyset>=2.0.1739066250",
-    "sqlalchemy>=2.0.40",
+    "redis>=6.2.0",
+    "sqlakeyset>=2.0.1746777265",
+    "sqlalchemy>=2.0.41",
 ]
 
 [dependency-groups]
 dev = [
-    "mypy>=1.15.0",
-    "mypy-extensions>=1.0.0",
-    "ruff>=0.11.4",
+    "mypy>=1.16.1",
+    "mypy-extensions>=1.1.0",
+    "ruff>=0.12.3",
+]
+
+[tool.uv]
+environments = [
+    "sys_platform == 'linux'",
 ]
