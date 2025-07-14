@@ -40,6 +40,16 @@ _NOTE: use `-d` flag to run containers in the background._
 
 #### 💻 Development Environment
 
+1. Navigate to the project directory via `cd <project_name>`;
+2. Copy [_.env.example_](.env.example) to _.env_ file via `cp .env.example .env`;
+3. Fill environment variables listed in _.env_ with relevant values;
+4. Create docker network via `docker network create <project_name>-network`;
+5. Run the project via `docker compose -f dev.docker-compose.yml up`.
+
+_NOTE: use `-d` flag to run containers in the background._
+
+#### 🚀 Local Development Environment
+
 1. Install uv if needed via `curl -LsSf https://astral.sh/uv/install.sh | sh`;
 2. Navigate to the project directory via `cd <project_name>`;
 3. Create a virtual environment via `uv venv`;
@@ -48,7 +58,7 @@ _NOTE: use `-d` flag to run containers in the background._
 6. Initialize pre-commit environment and install pre-commit hooks via `pre-commit install`;
 7. Copy [_.env.example_](.env.example) to _.env_ file via `cp .env.example .env`;
 8. Fill environment variables listed in _.env_ with relevant values;
-9. Run the project via `docker compose -f dev.docker-compose.yml up`.
+9. Run the project via `docker compose -f local.docker-compose.yml up`.
 
 _NOTE: use `-d` flag to run containers in the background._
 
@@ -96,7 +106,7 @@ The template uses a Manager pattern to implement business logic. The `BaseManage
 
 ```python
 # Create a manager for a specific model.
-class UserManager(BaseManager[User, UserRepository, UserCreate, UserUpdate]):
+class UserManager(BaseManager[User, UserCreate, UserUpdate]):
     pass
 
 
@@ -114,17 +124,18 @@ new_user = await user_manager.create(user_data, session)
 
 ### 🐳 Docker
 
-This template provides Docker configuration for both development and production environments:
+This template provides Docker configuration for three different environments:
 
-1. **Development** - Uses [_dev.docker-compose.yml_](dev.docker-compose.yml) and [_dev.Dockerfile_](dev.Dockerfile) with hot-reloading for faster development.
-2. **Production** - Uses [_prod.docker-compose.yml_](prod.docker-compose.yml) and [_prod.Dockerfile_](prod.Dockerfile) optimized for production use.
+1. **Local Development** - Uses [_local.docker-compose.yml_](local.docker-compose.yml) and [_local.Dockerfile_](local.Dockerfile) with hot-reloading and direct port access for fastest development.
+2. **Development with Proxy** - Uses [_dev.docker-compose.yml_](dev.docker-compose.yml) and [_dev.Dockerfile_](dev.Dockerfile) with hot-reloading, Traefik proxy, SSL certificates, and domain routing.
+3. **Production** - Uses [_prod.docker-compose.yml_](prod.docker-compose.yml) and [_prod.Dockerfile_](prod.Dockerfile) optimized for production use.
 
 The Docker setup includes:
 
 - FastAPI application;
 - PostgreSQL database;
 - Redis for caching;
-- Traefik application proxy.
+- Traefik application proxy (dev/prod environments);
 
 ### 📖 API Documentation
 
@@ -229,8 +240,8 @@ The FastAPI application instance setup, including routers registration and start
 
 Project root:
 
-- `dev.Dockerfile` / `prod.Dockerfile`: separate Dockerfiles for development and production environments;
-- `dev.docker-compose.yml` / `prod.docker-compose.yml`: Docker Compose configurations for spinning up development and production environments;
+- `local.Dockerfile` / `dev.Dockerfile` / `prod.Dockerfile`: separate Dockerfiles for local development, development with proxy, and production environments;
+- `local.docker-compose.yml` / `dev.docker-compose.yml` / `prod.docker-compose.yml`: Docker Compose configurations for spinning up different environments;
 - `pyproject.toml`: project dependencies and configuration using the UV package manager;
 - `uv.lock`: lockfile for exact dependency versions;
 - `entrypoint.sh`: entrypoint script used when the application runs inside a Docker container;
@@ -246,12 +257,13 @@ Project root:
 │   ├── alembic.ini
 │   ├── database
 │   │   ├── __init__.py
+│   │   ├── base.py
 │   │   ├── engine.py
 │   │   ├── migrations
 │   │   │   ├── env.py
 │   │   │   ├── script.py.mako
 │   │   │   └── versions
-│   │   │       └── 2025_04_06_...
+│   │   │       └── ...
 │   │   └── models.py
 │   ├── entrypoint.sh
 │   ├── exceptions
@@ -275,6 +287,7 @@ Project root:
 │   │   └── user.py
 │   ├── schemas
 │   │   ├── __init__.py
+│   │   ├── base.py
 │   │   └── user.py
 │   ├── settings.py
 │   └── utils
@@ -289,6 +302,8 @@ Project root:
 │       └── types.py
 ├── dev.Dockerfile
 ├── dev.docker-compose.yml
+├── local.Dockerfile
+├── local.docker-compose.yml
 ├── prod.Dockerfile
 ├── prod.docker-compose.yml
 ├── pyproject.toml
