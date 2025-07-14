@@ -6,7 +6,6 @@ ARG NONROOT_USER=nonroot
 ARG UV_PATH=./.local/bin/uv
 ARG PYSETUP_PATH=/opt/pysetup
 
-ENV UV_COMPILE_BYTECODE=1
 ENV PATH="${PYSETUP_PATH}/.venv/bin:${PATH}"
 
 RUN groupadd --gid ${GROUP_ID} ${NONROOT_USER} && \
@@ -28,7 +27,7 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 COPY --chown=${NONROOT_USER}:${NONROOT_USER} pyproject.toml uv.lock ./
 
 RUN ${UV_PATH} venv && \
-    ${UV_PATH} sync --frozen --no-dev
+    ${UV_PATH} sync --frozen
 
 FROM base AS runtime
 

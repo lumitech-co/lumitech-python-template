@@ -33,7 +33,7 @@ services:
     stop_grace_period: 3s
 
   postgres:
-    image: postgres:17.4
+    image: postgres:17.5
     container_name: <project_name>-db
     env_file:
       - .env
@@ -45,7 +45,7 @@ services:
       - <project_name>-network
 
   traefik:
-    image: traefik:v3.3.5
+    image: traefik:v3.4.4
     container_name: <project_name>-proxy
     command:
       - --providers.docker
@@ -68,7 +68,7 @@ services:
       - <project_name>-network
 
   redis:
-    image: redis:7.4.2
+    image: redis:8.0.3
     container_name: <project_name>-cache
     env_file:
       - .env

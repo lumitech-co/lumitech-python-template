@@ -1,4 +1,4 @@
-FROM python:3.13.2-slim-bookworm AS base
+FROM python:3.13.5-slim-bookworm AS base
 
 ARG USER_ID=1000
 ARG GROUP_ID=1000
@@ -6,6 +6,7 @@ ARG NONROOT_USER=nonroot
 ARG UV_PATH=./.local/bin/uv
 ARG PYSETUP_PATH=/opt/pysetup
 
+ENV UV_COMPILE_BYTECODE=1
 ENV PATH="${PYSETUP_PATH}/.venv/bin:${PATH}"
 
 RUN groupadd --gid ${GROUP_ID} ${NONROOT_USER} && \
