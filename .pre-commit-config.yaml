@@ -6,6 +6,7 @@ default_install_hook_types: [pre-commit, commit-msg]
 default_stages: [commit]
 
 repos:
+  # https://github.com/pre-commit/pre-commit-hooks/tags
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
@@ -18,11 +19,12 @@ repos:
       - id: end-of-file-fixer
       - id: mixed-line-ending
 
+  # https://github.com/astral-sh/ruff-pre-commit/tags
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.4
+    rev: v0.12.3
     hooks:
       - id: ruff-format
-      - id: ruff
+      - id: ruff-check
         args: ["--fix"]
 
   - repo: local
@@ -35,28 +37,33 @@ repos:
         types: [python]
         args: ["--config-file=.mypy.ini"]
 
+  # https://github.com/p  re-commit/mirrors-prettier/tags
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.1.0
     hooks:
       - id: prettier
         stages: [commit]
 
+  # https://github.com/jorisroovers/gitlint/tags
   - repo: https://github.com/jorisroovers/gitlint
     rev: v0.19.1
     hooks:
       - id: gitlint
         stages: [commit-msg]
 
+  # https://github.com/crate-ci/typos/tags
   - repo: https://github.com/crate-ci/typos
-    rev: v1.31.1
+    rev: v1.34.0
     hooks:
       - id: typos
 
+  # https://github.com/shellcheck-py/shellcheck-py/tags
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.10.0.1
     hooks:
       - id: shellcheck
 
+  # https://github.com/AleksaC/hadolint-py/tags
   - repo: https://github.com/AleksaC/hadolint-py
     rev: v2.12.0.3
     hooks:
