@@ -1,36 +1,21 @@
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field
 
-from app.utils.mixins import (
-    CreatedAtComputeMixin,
-    EmailLowerCaseMixin,
-    PasswordComplexityMixin,
-    PasswordHashMixin,
-    UpdatedAtComputeMixin,
-)
+from app.schemas.base import BaseCreateSchema, BaseReadSchema, BaseUpdateSchema
+from app.utils.mixins import EmailLowerCaseMixin, PasswordComplexityMixin, PasswordHashMixin
 
 
 class UserBase(BaseModel, EmailLowerCaseMixin):
     email: str
 
 
-class UserCreate(
-    UserBase,
-    PasswordComplexityMixin,
-    PasswordHashMixin,
-    EmailLowerCaseMixin,
-    CreatedAtComputeMixin,
-    UpdatedAtComputeMixin,
-):
+class UserCreate(BaseCreateSchema, UserBase, PasswordComplexityMixin, PasswordHashMixin, EmailLowerCaseMixin):
     email: EmailStr = Field(max_length=100)
     password: str = Field(max_length=50)
 
 
-class UserRead(UserBase):
-    model_config = ConfigDict(from_attributes=True)
-
-    email: str
-    id: int
+class UserRead(BaseReadSchema, UserBase):
+    pass
 
 
-class UserUpdate(BaseModel, UpdatedAtComputeMixin):
+class UserUpdate(BaseUpdateSchema):
     email: EmailStr | None = Field(None, max_length=100)

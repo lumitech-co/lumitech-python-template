@@ -27,7 +27,7 @@ router = APIRouter(tags=["Users"], prefix="/users")
 async def fetch_users(
     *, order_by: OrderByQuery = DEFAULT_ORDER_BY, desc: bool = DEFAULT_DESC, session: DatabaseSessionDependency
 ) -> Any | None:
-    return await user_manager.fetch(order_by=order_by, desc=desc, session=session)
+    return await user_manager.fetch_paginated(order_by=order_by, desc=desc, session=session)
 
 
 @router.get(

@@ -4,7 +4,7 @@ from app.repository.user import UserRepository
 from app.schemas.user import UserCreate, UserUpdate
 
 
-class UserManager(BaseManager[User, UserRepository, UserCreate, UserUpdate]):
+class UserManager(BaseManager[User, UserCreate, UserUpdate]):
     pass
 
 
