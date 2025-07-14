@@ -1,20 +1,18 @@
 from collections.abc import Sequence
-from typing import Any, Generic, TypeVar
+from typing import Any
 
 from fastapi_pagination.ext.sqlalchemy import paginate
 from pydantic import BaseModel
-from sqlalchemy import desc as sa_desc, insert, select
+from sqlalchemy import delete, desc as sa_desc, exists as sa_exists, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.base import ExecutableOption
 
-from app.database.engine import Base
+from app.database.base import Base
 from app.utils.constants import DEFAULT_DESC, DEFAULT_ORDER_BY
-
-DBModelType = TypeVar("DBModelType", bound=Base)
-SchemaCreateType = TypeVar("SchemaCreateType", bound=BaseModel)
-SchemaUpdateType = TypeVar("SchemaUpdateType", bound=BaseModel)
+from app.utils.pagination import Page
 
 
-class BaseRepository(Generic[DBModelType, SchemaCreateType, SchemaUpdateType]):  # noqa: UP046
+class BaseRepository[DBModelType: Base, SchemaCreateType: BaseModel, SchemaUpdateType: BaseModel]:
     def __init__(self, db_model: type[DBModelType]) -> None:
         self.db_model = db_model
 
@@ -22,7 +20,7 @@ class BaseRepository(Generic[DBModelType, SchemaCreateType, SchemaUpdateType]): 
         self,
         *,
         filters: list[Any] | None = None,
-        options: list[Any] | None = None,
+        options: list[ExecutableOption] | None = None,
         order_by: Any = DEFAULT_ORDER_BY,
         desc: bool = DEFAULT_DESC,
         session: AsyncSession,
@@ -30,59 +28,68 @@ class BaseRepository(Generic[DBModelType, SchemaCreateType, SchemaUpdateType]): 
     ) -> DBModelType | None:
         filters = filters or []
 
-        if desc:
-            order_by = sa_desc(order_by)
+        query = select(self.db_model).filter(*filters).filter_by(**kwargs)
 
-        query = select(self.db_model).filter(*filters).filter_by(**kwargs).order_by(order_by)
+        if order_by is not None:
+            query = query.order_by(sa_desc(order_by) if desc else order_by)
 
         if options:
             query = query.options(*options)
 
         return (await session.execute(query)).scalars().first()
 
-    async def fetch(
+    async def fetch_paginated(
         self,
         *,
         filters: list[Any] | None = None,
-        options: list[Any] | None = None,
+        options: list[ExecutableOption] | None = None,
         order_by: Any = DEFAULT_ORDER_BY,
         desc: bool = DEFAULT_DESC,
         session: AsyncSession,
         **kwargs: Any,
-    ) -> Any | None:
+    ) -> Page[DBModelType]:
         filters = filters or []
 
-        if desc:
-            order_by = sa_desc(order_by)
+        query = select(self.db_model).filter(*filters).filter_by(**kwargs)
 
-        query = select(self.db_model).filter(*filters).filter_by(**kwargs).order_by(order_by)
+        if order_by is not None:
+            query = query.order_by(sa_desc(order_by) if desc else order_by)
 
         if options:
             query = query.options(*options)
 
         return await paginate(session, query)
 
-    async def fetch_all(
+    async def fetch_bulk(
         self,
         *,
         filters: list[Any] | None = None,
-        options: list[Any] | None = None,
+        options: list[ExecutableOption] | None = None,
         order_by: Any = DEFAULT_ORDER_BY,
         desc: bool = DEFAULT_DESC,
+        limit: int | None = None,
         session: AsyncSession,
         **kwargs: Any,
     ) -> Sequence[DBModelType] | None:
         filters = filters or []
 
-        if desc:
-            order_by = sa_desc(order_by)
+        query = select(self.db_model).filter(*filters).filter_by(**kwargs)
 
-        query = select(self.db_model).filter(*filters).filter_by(**kwargs).order_by(order_by)
+        if order_by is not None:
+            query = query.order_by(sa_desc(order_by) if desc else order_by)
 
         if options:
             query = query.options(*options)
 
+        if limit is not None:
+            query.limit(limit)
+
         return (await session.execute(query)).scalars().all()
+
+    async def exists(self, session: AsyncSession, *, filters: list[Any] | None = None, **kwargs: Any) -> bool:
+        filters = filters or []
+        filters_by = [getattr(self.db_model, key) == value for key, value in kwargs.items()] if kwargs else []
+        return bool((await session.execute(select(sa_exists().where(*filters, *filters_by)))).scalar())
 
     async def create(
         self, create_obj: SchemaCreateType | dict[str, Any], session: AsyncSession, *, is_flush: bool = False
@@ -136,6 +143,25 @@ class BaseRepository(Generic[DBModelType, SchemaCreateType, SchemaUpdateType]): 
 
         return db_obj
 
+    async def update_bulk(
+        self,
+        payload: dict[str, Any],
+        session: AsyncSession,
+        *,
+        filters: list[Any] | None = None,
+        is_flush: bool = False,
+        **kwargs: Any,
+    ) -> None:
+        filters = filters or []
+
+        await session.execute(update(self.db_model).filter(*filters).filter_by(**kwargs).values(payload))
+
+        if is_flush:
+            await session.flush()
+
+        else:
+            await session.commit()
+
     @staticmethod
     async def delete(db_obj: DBModelType, session: AsyncSession, *, is_flush: bool = False) -> None:
         if is_flush:
@@ -144,4 +170,17 @@ class BaseRepository(Generic[DBModelType, SchemaCreateType, SchemaUpdateType]): 
 
         else:
             await session.delete(db_obj)
+            await session.commit()
+
+    async def delete_bulk(
+        self, *, filters: list[Any] | None = None, session: AsyncSession, is_flush: bool = False, **kwargs: Any
+    ) -> None:
+        filters = filters or []
+
+        await session.execute(delete(self.db_model).filter(*filters).filter_by(**kwargs))
+
+        if is_flush:
+            await session.flush()
+
+        else:
             await session.commit()
