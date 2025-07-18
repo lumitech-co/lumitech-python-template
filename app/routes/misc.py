@@ -5,10 +5,7 @@ from fastapi.responses import HTMLResponse, PlainTextResponse
 router = APIRouter(tags=["Miscellaneous"])
 
 
-@router.get(
-    "/healthcheck",
-    status_code=status.HTTP_200_OK,
-)
+@router.get("/healthcheck")
 def healthcheck() -> Response:
     return Response(status_code=status.HTTP_200_OK)
 

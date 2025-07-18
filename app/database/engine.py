@@ -7,13 +7,9 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import declarative_base
 
 from app.exceptions.database import DatabaseInitializationError
 from app.settings import settings
-
-Base = declarative_base()
-metadata = Base.metadata
 
 
 class DatabaseSessionManager:

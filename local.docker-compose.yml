@@ -1,0 +1,43 @@
+services:
+  fastapi:
+    container_name: <project_name>-api
+    build:
+      context: .
+      dockerfile: local.Dockerfile
+    entrypoint: /opt/pysetup/app/entrypoint.sh
+    env_file:
+      - .env
+    volumes:
+      - ./app:/opt/pysetup/app
+      - .env:/opt/pysetup/app/.env
+    ports:
+      - "8000:80"
+    depends_on:
+      - postgres
+      - redis
+    stop_grace_period: 3s
+
+  postgres:
+    image: postgres:17.5
+    container_name: <project_name>-db
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:8.0.3
+    container_name: <project_name>-cache
+    env_file:
+      - .env
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:

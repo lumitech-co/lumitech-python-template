@@ -7,7 +7,7 @@ from alembic import context
 from sqlalchemy.ext.asyncio.engine import create_async_engine
 from sqlalchemy.future import Connection
 
-from app.database.engine import metadata
+from app.database.base import metadata
 from app.database.models import *  # noqa: F403
 from app.settings import settings
 
